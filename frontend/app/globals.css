@@ -1,0 +1,653 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  html {
+    overflow-x: clip;
+    width: 100%;
+  }
+  body {
+    background: #f8fafc;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: clip;
+    color: #0f172a;
+    font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ============================================================
+   APPLE LIQUID GLASS — Core Component
+   iOS 26 / WWDC 2025 スタイル: 反射・屈折・歪みエフェクト
+   ============================================================ */
+
+.liquid-glass {
+  position: relative;
+  backdrop-filter: blur(24px) saturate(200%) brightness(1.15);
+  -webkit-backdrop-filter: blur(24px) saturate(200%) brightness(1.15);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.12) 100%
+  );
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15),
+    inset 1px 0 0 rgba(255, 255, 255, 0.10),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* 上部の光反射レイヤー (Specular Highlight) */
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 45%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.08) 40%,
+    transparent 100%
+  );
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 下部の屈折光グロー (Refraction Glow) */
+.liquid-glass::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 15%;
+  right: 15%;
+  height: 30%;
+  background: radial-gradient(
+    ellipse,
+    rgba(96, 165, 250, 0.18) 0%,
+    transparent 70%
+  );
+  filter: blur(16px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* コンテンツは反射レイヤーの上に */
+.liquid-glass > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   LIQUID GLASS VARIANTS
+   ============================================================ */
+
+/* ブルーティント */
+.liquid-glass-blue {
+  position: relative;
+  backdrop-filter: blur(24px) saturate(200%) brightness(1.15);
+  -webkit-backdrop-filter: blur(24px) saturate(200%) brightness(1.15);
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.22) 0%,
+    rgba(37, 99, 235, 0.10) 50%,
+    rgba(99, 102, 241, 0.15) 100%
+  );
+  border-radius: 1.5rem;
+  border: 1px solid rgba(96, 165, 250, 0.40);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(96, 165, 250, 0.35),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15),
+    0 0 24px rgba(59, 130, 246, 0.08);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.liquid-glass-blue::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 45%;
+  background: linear-gradient(
+    to bottom,
+    rgba(147, 197, 253, 0.18) 0%,
+    rgba(147, 197, 253, 0.05) 40%,
+    transparent 100%
+  );
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.liquid-glass-blue::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 10%;
+  right: 10%;
+  height: 30%;
+  background: radial-gradient(
+    ellipse,
+    rgba(59, 130, 246, 0.25) 0%,
+    transparent 70%
+  );
+  filter: blur(20px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.liquid-glass-blue > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ダークバリアント */
+.liquid-glass-dark {
+  position: relative;
+  backdrop-filter: blur(24px) saturate(180%) brightness(0.9);
+  -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(0.9);
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.65) 0%,
+    rgba(12, 26, 61, 0.55) 100%
+  );
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.liquid-glass-dark::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 35%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.08) 0%,
+    transparent 100%
+  );
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.liquid-glass-dark::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 20%;
+  right: 20%;
+  height: 20%;
+  background: radial-gradient(
+    ellipse,
+    rgba(96, 165, 250, 0.10) 0%,
+    transparent 70%
+  );
+  filter: blur(12px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.liquid-glass-dark > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   GLASS INPUTS
+   ============================================================ */
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  color: white;
+  border-radius: 0.875rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(96, 165, 250, 0.70);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  outline: none;
+}
+
+.glass-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+select.glass-input option {
+  background: #1e3a5f;
+  color: white;
+}
+
+.glass-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   GLASS BUTTONS
+   ============================================================ */
+
+.glass-btn-primary {
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.90),
+    rgba(37, 99, 235, 0.90)
+  );
+  border: 1px solid rgba(96, 165, 250, 0.40);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    0 4px 16px rgba(59, 130, 246, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20);
+  color: white;
+  border-radius: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.glass-btn-primary:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(96, 165, 250, 0.92),
+    rgba(59, 130, 246, 0.92)
+  );
+  box-shadow:
+    0 6px 24px rgba(59, 130, 246, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.glass-btn-primary:active {
+  transform: translateY(0);
+}
+
+.glass-btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.glass-btn-secondary {
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  color: white;
+  border-radius: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.glass-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.glass-btn-secondary:active {
+  transform: translateY(0);
+}
+
+.glass-btn-secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 危険/削除ボタン */
+.glass-btn-danger {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.80),
+    rgba(220, 38, 38, 0.80)
+  );
+  border: 1px solid rgba(252, 165, 165, 0.30);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.25);
+  color: white;
+  border-radius: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.glass-btn-danger:hover {
+  box-shadow: 0 6px 24px rgba(239, 68, 68, 0.40);
+  transform: translateY(-1px);
+}
+
+/* ============================================================
+   GLASS BADGES & TAGS
+   ============================================================ */
+
+.glass-badge {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 9999px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.125rem 0.625rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.glass-badge-blue {
+  background: rgba(59, 130, 246, 0.20);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 9999px;
+  color: rgba(147, 197, 253, 0.95);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.125rem 0.625rem;
+}
+
+.glass-badge-green {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(52, 211, 153, 0.30);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 9999px;
+  color: rgba(110, 231, 183, 0.95);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.125rem 0.625rem;
+}
+
+.glass-badge-amber {
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(252, 211, 77, 0.30);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 9999px;
+  color: rgba(252, 211, 77, 0.95);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.125rem 0.625rem;
+}
+
+/* ============================================================
+   GLASS NAV / HEADER
+   ============================================================ */
+
+.glass-nav {
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================================
+   GLASS TEXT UTILITIES
+   ============================================================ */
+
+.glass-text-primary {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.glass-text-secondary {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.glass-text-muted {
+  color: rgba(255, 255, 255, 0.40);
+}
+
+/* ============================================================
+   GLASS DIVIDER
+   ============================================================ */
+
+.glass-divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.15) 30%,
+    rgba(255, 255, 255, 0.15) 70%,
+    transparent
+  );
+}
+
+/* ============================================================
+   GLASS CARD HOVER EFFECT
+   ============================================================ */
+
+.glass-card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.40),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================================
+   GLASS SELECTED STATE
+   ============================================================ */
+
+.glass-selected {
+  border-color: rgba(96, 165, 250, 0.60) !important;
+  box-shadow:
+    0 0 0 2px rgba(59, 130, 246, 0.20),
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(96, 165, 250, 0.30) !important;
+}
+
+/* ============================================================
+   GLASS SCROLLBAR
+   ============================================================ */
+
+.glass-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.glass-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
+
+.glass-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.20);
+  border-radius: 2px;
+}
+
+.glass-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* ============================================================
+   MAPBOX OVERRIDE
+   ============================================================ */
+
+.mapboxgl-map {
+  font-family: inherit;
+}
+
+/* ============================================================
+   CHAT SCROLLBAR (legacy)
+   ============================================================ */
+
+.chat-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chat-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.chat-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.20);
+  border-radius: 2px;
+}
+
+/* ============================================================
+   RANK BADGE COLORS (for glass context)
+   ============================================================ */
+
+.rank-s {
+  color: #c4b5fd;
+  background: rgba(124, 58, 237, 0.25);
+  border-color: rgba(167, 139, 250, 0.40);
+}
+
+.rank-a {
+  color: #93c5fd;
+  background: rgba(29, 78, 216, 0.25);
+  border-color: rgba(96, 165, 250, 0.40);
+}
+
+.rank-b {
+  color: #6ee7b7;
+  background: rgba(6, 95, 70, 0.25);
+  border-color: rgba(52, 211, 153, 0.40);
+}
+
+.rank-c {
+  color: #fcd34d;
+  background: rgba(146, 64, 14, 0.25);
+  border-color: rgba(252, 211, 77, 0.40);
+}
+
+.rank-d {
+  color: #d1d5db;
+  background: rgba(107, 114, 128, 0.25);
+  border-color: rgba(156, 163, 175, 0.30);
+}
+
+.rank-e {
+  color: #9ca3af;
+  background: rgba(156, 163, 175, 0.12);
+  border-color: rgba(156, 163, 175, 0.25);
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
+@keyframes glass-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.glass-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.05) 25%,
+    rgba(255,255,255,0.15) 50%,
+    rgba(255,255,255,0.05) 75%
+  );
+  background-size: 200% auto;
+  animation: glass-shimmer 2s linear infinite;
+}
+
+@keyframes glass-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.20); }
+  50% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+}
+
+.glass-pulse {
+  animation: glass-pulse 2s ease-in-out infinite;
+}
+
+/* ============================================================
+   UTILITY — Focus ring for glass context
+   ============================================================ */
+
+.glass-focus:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.40);
+}
+
+/* ========= RESPONSIVE HELPERS (Tailwind md: prefix not compiling in v4) ========= */
+/* Desktop-only elements: hidden on mobile, flex on desktop */
+.nav-desktop {
+  display: none !important;
+}
+/* Mobile-only elements: visible on mobile, hidden on desktop */
+.nav-mobile {
+  display: flex !important;
+}
+@media (min-width: 768px) {
+  .nav-desktop { display: flex !important; }
+  .nav-mobile  { display: none !important;  }
+}
+
+/* ========= MOBILE RESPONSIVE FIXES ========= */
+@media (max-width: 640px) {
+  .hero-container { padding-left: 1.25rem !important; padding-right: 1.25rem !important; }
+  .hero-btns a { width: 100%; justify-content: center; }
+  .rank-grid { grid-template-columns: repeat(3, 1fr) !important; }
+}
+
+/* Contractor section: AI score block comes first on mobile */
+@media (max-width: 768px) {
+  .contractor-ai-first { order: -1 !important; }
+}
+
+/* Mobile: disable sticky for contractor AI section */
+@media (max-width: 768px) {
+  .contractor-sticky {
+    position: static !important;
+    top: auto !important;
+    align-self: auto !important;
+  }
+}
+
+/* ── Japanese text rendering ── */
+/* word-break: keep-all applies only to text-level elements */
+p, h1, h2, h3, h4, h5, h6, li, dt, dd, th, td, label, caption {
+
+  overflow-wrap: break-word;
+}
+/* text-wrap: balance only for headings and short paragraphs */
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}

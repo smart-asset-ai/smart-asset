@@ -1,0 +1,126 @@
+{
+  "instructions": "Smart Asset AI 管理画面をVM3にデプロイする一括手順",
+  "target_vm": "141.253.121.51",
+  "steps": [
+    {
+      "step": 1,
+      "title": "Supabase テーブル作成",
+      "description": "Supabaseコンソールで SQL を実行",
+      "commands": [
+        "# Supabase コンソール: https://app.supabase.com",
+        "# プロジェクト: xwzotyjutiwwgvfldre",
+        "# SQL エディタで以下を実行：",
+        "# (supabase-setup.sql の内容をそのまま貼り付け)"
+      ]
+    },
+    {
+      "step": 2,
+      "title": "フロントエンド (管理画面) をデプロイ",
+      "description": "React コンポーネントを Next.js/Vite に統合",
+      "commands": [
+        "# VM3 内で実行：",
+        "cd /home/ubuntu/smart-asset/frontend",
+        "# smart-asset-admin-full.jsx を pages/admin.jsx に配置",
+        "cp smart-asset-admin-full.jsx src/pages/admin.jsx",
+        "# npm でビルド",
+        "npm run build"
+      ]
+    },
+    {
+      "step": 3,
+      "title": "バックエンド メンテナンスモード対応",
+      "description": "Python FastAPI にメンテナンスロジックを追加",
+      "commands": [
+        "# VM3 内で実行：",
+        "cd /home/ubuntu/smart-asset/backend",
+        "# smart-asset-backend-maintenance.py の内容を main.py に統合",
+        "# または新しいモジュールとして追加：",
+        "cp smart-asset-backend-maintenance.py app/maintenance.py",
+        "# requirements.txt に httpx を追加（未済の場合）",
+        "echo 'httpx>=0.24.0' >> requirements.txt",
+        "pip install -r requirements.txt --break-system-packages"
+      ]
+    },
+    {
+      "step": 4,
+      "title": "Nginx 設定更新（管理画面ルーティング）",
+      "description": "管理画面用パスをロードバランシング",
+      "commands": [
+        "# /etc/nginx/sites-available/smart-asset を編集",
+        "sudo nano /etc/nginx/sites-available/smart-asset",
+        "# 以下を location ブロックに追加：",
+        "# location /admin {",
+        "#   proxy_pass http://localhost:3000;",
+        "#   proxy_set_header Host $host;",
+        "#   proxy_set_header X-Real-IP $remote_addr;",
+        "# }",
+        "# location /api {",
+        "#   proxy_pass http://localhost:8000;",
+        "#   proxy_set_header Host $host;",
+        "# }",
+        "# Nginx テスト",
+        "sudo nginx -t",
+        "# リロード",
+        "sudo systemctl reload nginx"
+      ]
+    },
+    {
+      "step": 5,
+      "title": "Systemd サービス更新",
+      "description": "既存のサービスを確認・更新",
+      "commands": [
+        "# 確認用",
+        "sudo systemctl status smart-asset-backend",
+        "sudo systemctl status smart-asset-frontend",
+        "# 再起動（変更後）",
+        "sudo systemctl restart smart-asset-backend",
+        "sudo systemctl restart smart-asset-frontend"
+      ]
+    },
+    {
+      "step": 6,
+      "title": "管理画面でメンテナンスモード切り替え",
+      "description": "https://smart-asset.ai/admin にアクセス",
+      "commands": [
+        "# 以下の URL にアクセス：",
+        "# https://smart-asset.ai/admin",
+        "# ヘッダーの『メンテナンス中』ボタンでモード切り替え",
+        "# ボタンが赤：メンテナンスモード ON",
+        "# ボタンが緑：サイト稼働中（メンテナンスモード OFF）"
+      ]
+    },
+    {
+      "step": 7,
+      "title": "動作確認",
+      "description": "メンテナンスページの表示確認",
+      "commands": [
+        "# メンテナンスモード ON の場合：",
+        "# https://smart-asset.ai にアクセス",
+        "# → メンテナンスページが表示される",
+        "",
+        "# メンテナンスモード OFF の場合：",
+        "# https://smart-asset.ai にアクセス",
+        "# → 通常のホームページが表示される",
+        "",
+        "# API status確認：",
+        "curl https://smart-asset.ai/api/status"
+      ]
+    }
+  ],
+  "important_notes": [
+    "✅ 管理画面 URL: https://smart-asset.ai/admin",
+    "✅ メンテナンスボタンは右上に配置",
+    "✅ ワンクリックで ON/OFF 切り替え可能",
+    "✅ Supabase に状態が永続保存される",
+    "✅ 設定変更は自動で全 API に反映",
+    "✅ SSL/HTTPS 対応済み (Let's Encrypt)"
+  ],
+  "test_commands": [
+    "# Supabase データ確認",
+    "curl -s 'https://xwzotyjutiwwgvfldre.supabase.co/rest/v1/settings?key=eq.maintenance' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh3em90dmp1dGl4d3BndmZsZHJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDIyMTAsImV4cCI6MjA4ODExODIxMH0.tShaPJdJbm3wPfT7u6v4x_dzGnmYbIZMWmS9koZonk' | jq",
+    "# メンテナンスページ確認",
+    "curl -I https://smart-asset.ai",
+    "# API ステータス",
+    "curl https://smart-asset.ai/api/status | jq"
+  ]
+}

@@ -1,0 +1,144 @@
+'use client';
+import { useEffect, useState, useRef } from 'react';
+
+interface AIMascotProps {
+  size?: number;
+  animated?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+  bg1?: string;
+  bg2?: string;
+  variant?: 'dark' | 'light';
+}
+
+type Phase = 'ai' | 'center' | 'left' | 'right' | 'blink' | 'still' | 'smile';
+
+const delay = (ms: number) => new Promise<void>(res => setTimeout(res, ms));
+
+export default function AIMascot({ size = 64, animated = true, className = '', style = {}, bg1 = '#2563eb', bg2 = '#4f46e5', variant = 'dark' }: AIMascotProps) {
+  const isLight = variant === 'light';
+  const fgColor = isLight ? '#1e3a8a' : 'white';
+  const bgFill = 'transparent';
+  const strokeColor = isLight ? '#1e3a8a' : 'white';
+  const [phase, setPhase] = useState<Phase>('ai');
+  const [eyeRy, setEyeRy] = useState(16);
+  const aliveRef = useRef(true);
+
+  useEffect(() => {
+    if (!animated) return;
+    aliveRef.current = true;
+
+    const run = async () => {
+      while (aliveRef.current) {
+        // 0〜5s: AIテキスト表示
+        setPhase('ai'); setEyeRy(16);
+        await delay(5000);
+        if (!aliveRef.current) break;
+
+        // 5〜5.5s: 目が中央に出現
+        setPhase('center');
+        await delay(500);
+        if (!aliveRef.current) break;
+
+        // 5.5〜6.5s: 左上へ移動
+        setPhase('left');
+        await delay(1000);
+        if (!aliveRef.current) break;
+
+        // 6.5〜7.5s: 右上へ移動
+        setPhase('right');
+        await delay(1000);
+        if (!aliveRef.current) break;
+
+        // 7.5〜8s: 中央に戻ってパチクリ×2
+        setPhase('blink');
+        await delay(100);
+        setEyeRy(2);  await delay(120);
+        setEyeRy(16); await delay(120);
+        setEyeRy(2);  await delay(120);
+        setEyeRy(16); await delay(40);
+        if (!aliveRef.current) break;
+
+        // 8〜10s: 目だけ静止
+        setPhase('still');
+        await delay(2000);
+        if (!aliveRef.current) break;
+
+        // 10〜12s: ニコッと口出現
+        setPhase('smile');
+        await delay(2000);
+        if (!aliveRef.current) break;
+      }
+    };
+
+    run();
+    return () => { aliveRef.current = false; };
+  }, [animated]);
+
+  const showAI    = phase === 'ai';
+  const showEyes  = phase !== 'ai';
+  const showSmile = phase === 'smile';
+
+  const txMap: Record<Phase, number> = { ai: 0, center: 0, left: -28, right: 28, blink: 0, still: 0, smile: 0 };
+  const tyMap: Record<Phase, number> = { ai: 0, center: 0, left: -18, right: -18, blink: 0, still: 0, smile: 0 };
+  const tx = txMap[phase];
+  const ty = tyMap[phase];
+  const transitionDur = (phase === 'left' || phase === 'right') ? '0.9s' : '0.25s';
+  const transformStr = 'translate(' + tx + 'px, ' + ty + 'px)';
+
+  return (
+    <div className={className} style={{ width: size, height: size, display: 'inline-block', flexShrink: 0, ...style }}>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 200 200"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ display: 'block' }}
+      >
+        <defs>
+          <linearGradient id="mascot-bg-g" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#2563eb" />
+            <stop offset="100%" stopColor="#4f46e5" />
+          </linearGradient>
+        </defs>
+
+        <rect x="42" y="60" width="116" height="96" rx="26" ry="26"
+          {...({ fill: bgFill, stroke: strokeColor, strokeWidth: 8 } as React.SVGProps<SVGRectElement>)} />
+
+        <polygon points="132,60 162,30 160,60" {...({ fill: bgFill, stroke: strokeColor, strokeWidth: 6, strokeLinejoin: 'round' } as React.SVGProps<SVGPolygonElement>)} />
+
+        <text
+          x="100" y="107"
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fill={fgColor}
+          fontSize="52"
+          fontWeight="900"
+          fontFamily="-apple-system, BlinkMacSystemFont, sans-serif"
+          letterSpacing="6"
+          style={{ opacity: showAI ? 1 : 0, transition: 'opacity 0.3s' }}
+        >AI</text>
+
+        <g style={{
+          opacity: showEyes ? 1 : 0,
+          transform: transformStr,
+          transition: 'transform ' + transitionDur + ' ease-in-out, opacity 0.3s',
+        }}>
+          <ellipse cx="84" cy="97" rx="9" ry={eyeRy} fill={fgColor}
+            style={{ transformOrigin: '84px 97px', transition: 'ry 0.08s' }} />
+          <ellipse cx="116" cy="97" rx="9" ry={eyeRy} fill={fgColor}
+            style={{ transformOrigin: '116px 97px', transition: 'ry 0.08s' }} />
+        </g>
+
+        <path
+          d="M 72 128 Q 100 148 128 128"
+          stroke={strokeColor}
+          strokeWidth="10"
+          fill="none"
+          strokeLinecap="round"
+          style={{ opacity: showSmile ? 1 : 0, transition: 'opacity 0.4s ease-in-out' }}
+        />
+      </svg>
+    </div>
+  );
+}
