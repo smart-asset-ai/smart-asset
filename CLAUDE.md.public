@@ -1,0 +1,113 @@
+# Smart Asset AI — Claude Code 設定メモ
+
+## サーバー構成
+
+| VM名 | IPアドレス | 用途 | SSHキー |
+|------|-----------|------|---------|
+| VM1  | 141.253.102.142 | OpenClaw マルチエージェント / KabuBot | `~/.ssh/stagea_key` |
+| VM3  | 141.253.121.51  | smart-asset.ai 本番サーバー | `~/.ssh/stagea_key` |
+
+SSH接続例:
+```bash
+# VM3
+ssh -i ~/.ssh/stagea_key ubuntu@141.253.121.51
+
+# VM1
+ssh -i ~/.ssh/stagea_key ubuntu@141.253.102.142
+```
+
+## 運用ポリシー
+
+- **コスト最小化最優先**
+- VM3（2コア）= Smart Asset AI 専用
+- VM1 = OpenClaw + KabuBot 専用
+- **`agent_bot.py` は絶対に起動禁止**（409 Conflict が発生する）
+- `openclaw-gateway.service` のみ起動すること
+- VTuber Factory: 停止済み（ファイルは保持）
+
+> ⚠️ APIキー・トークン類はローカルの CLAUDE.md または VM1の `~/.openclaw/openclaw.json` を参照
+
+---
+
+## VM1 詳細構成（141.253.102.142）
+
+### OpenClaw マルチエージェントシステム（Discord上の5体のAIボット）
+
+| エージェント | モデル | 役割 | @メンション |
+|------------|--------|------|------------|
+| Altair | claude-sonnet-4-6 | 社長 / 秘書 | 不要（チャンネル直接投稿） |
+| Kairos | claude-opus-4-6 | 会長 | @Altair 必須 |
+| Iris | claude-haiku-4-5 | SNS / X戦略 | @Altair 必須 |
+| Merku | claude-haiku-4-5 | YouTube / 営業 | @Altair 必須 |
+| Pluto | claude-haiku-4-5 | TikTok / 会計 | @Altair 必須 |
+
+**起動方法:** `openclaw-gateway.service` のみ起動
+**設定ファイル:** `~/.openclaw/openclaw.json`
+
+### OpenClaw Gateway
+- **Dashboard:** `http://localhost:18789/`（SSHトンネル port 18789）
+
+```bash
+ssh -i ~/.ssh/stagea_key -L 18789:localhost:18789 ubuntu@141.253.102.142
+```
+
+### OpenClaw Device Auth
+- **deviceId:** `8612790767ac5b0d59fe40b64dbc208069894f1e264ba79a4ec58b1a5f65bc3b`
+
+### Discord 設定
+- **サーバーID:** `1475430294638166180`
+
+#### チャンネルID一覧
+
+| チャンネルID | 用途 |
+|-------------|------|
+| `1475435302930743378` | Altair メインチャンネル（requireMention: false） |
+| `1475454391015444662` | Iris チャンネル |
+| `1475445220790243380` | Merku チャンネル |
+| `1475451631742222446` | Pluto チャンネル |
+| `1475445159104614553` | 共有チャンネル |
+| `1475895348886114448` | 共有チャンネル |
+| `1477699338191765676` | 共有チャンネル（requireMention: false） |
+
+### AI Work Stage Chatbot（chatbot.service）
+- **用途:** https://smart-asset.ai のチャットボット機能
+- **稼働サーバー:** VM3（141.253.121.51）※VM1からVM3へ移行済み
+- **ファイル:** `~/aiworkstage-server/chatbot.py`（VM3）
+- **公開URL:** `https://smart-asset.ai/chat/`
+- **⚠️ 注意:** smart-asset.ai本番に影響するため停止禁止
+
+### KabuBot
+- 用途: 日本株スクリーニング
+- 実行時刻: 08:30 / 12:30 / 15:30 JST
+- **GENAI_MODEL:** `gemini-1.5-flash`
+- **設定ファイル:** `~/.openclaw/workspace/.env`
+
+### X / Twitter
+- **TWITTER_HANDLE:** `ai_jitumu_lab`
+- **設定ファイル:** `~/.openclaw/workspace/x_automation/.env`
+
+### Note.com
+- **EMAIL:** `aiworkstage+note@gmail.com`
+- **USERNAME:** `ai_jitumu_lab`
+
+---
+
+## VM3 詳細構成（141.253.121.51）
+
+### プロジェクト概要
+- サイト: https://smart-asset.ai
+- フロントエンド: Next.js + TypeScript (`~/smart-asset/frontend`)
+- バックエンド: Python FastAPI (`~/smart-asset/backend`)
+- DB: Supabase (プロジェクトID: `xwzotyjutiwwgvfldre`)
+- プロセス管理: pm2
+
+### デプロイコマンド（VM3上）
+
+```bash
+cd ~/smart-asset/frontend && npm run build && pm2 restart frontend
+```
+
+### デザイン原則
+- カラー: `#0f172a` / `#1e3a8a` / `#2563eb` / `#16a34a`
+- カード: white背景・borderRadius 1.25rem・boxShadow 0 1px 4px rgba(0,0,0,0.07)
+- フォント: -apple-system, BlinkMacSystemFont, 'Hiragino Sans'
